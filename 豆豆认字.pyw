@@ -1,8 +1,10 @@
+import codecs
 import tkinter as tk
-import pygame, sys, codecs, pypinyin
 from pypinyin import pinyin, lazy_pinyin  # 这个支持多音字
 
-NUM      = 50     # 每次学习的字词数
+NUM         = 50      # 每次学习的字词数
+root_width  = 1024    # 设置主窗口尺寸，最好是1024x768
+root_height = 768
 dangqian = set()
 yihui    = set()
 total    = set()
@@ -28,24 +30,28 @@ with codecs.open('字库文件\A正在学字库.txt', 'r+', 'utf-8') as f_d,\
         study = dangqian
     else:
         study = dangqian - yihui
-    study = list(study)  # 生成按顺序学习的列表
+    study = list(study)      # 生成按顺序学习的列表
     try:
         study.remove('')     # 删除列表中空元素
     except ValueError:
         pass
 
 class Mysdudy():
-    index = 0
-    # have_study = []
+    index = 0    
   
 pinyin('预加载')  # 提前加载一次库，提高用户体验
 ####################### 以下为 GUI 界面，不要更改设置顺序 ######################
 # 设置主窗口
 root = tk.Tk()
 root.title('豆豆认字')
-root.geometry('1024x768')
-root.iconbitmap('字库文件\豆豆.ico')
-root.resizable(0,0)  # 禁止主窗口调整大小
+# 设置主窗口居中
+sw = root.winfo_screenwidth()
+sh = root.winfo_screenheight()
+sw = int((sw-root_width)/2)
+sh = int((sh-root_height)/2)
+root.geometry('{}x{}+{}+{}'.format(root_width, root_height, sw, sh))  
+root.iconbitmap('字库文件\豆豆.ico')  # 窗口图标
+root.resizable(0,0)                 # 禁止主窗口调整大小
 
 # 定义控制函数
 def revious_fun():
@@ -86,10 +92,11 @@ def pinyin_fun():
     pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(shuru_entry.get()))
 
 def add_fun():
-    with codecs.open('字库文件\A正在学字库.txt', 'a', 'utf-8') as f_d,\
-        codecs.open('字库文件\C总字库.txt', 'a', 'utf-8') as f_t:
-        f_d.write('\n' + shuru_entry.get())
-        f_t.write('\n' + shuru_entry.get())
+    if not '\n':  # 若是空白行的回车字符就不写入文件了，注意回车字符'\n'不是None
+        with codecs.open('字库文件\A正在学字库.txt', 'a', 'utf-8') as f_d,\
+            codecs.open('字库文件\C总字库.txt', 'a', 'utf-8') as f_t:
+            f_d.write('\n' + shuru_entry.get())
+            f_t.write('\n' + shuru_entry.get())
         
 def shuru_entry_return(event):
     pinyin_fun()
@@ -103,7 +110,7 @@ def root_right(event):
 # 放置控件，设置属性，绑定控制函数。注意：运行中需要更改属性的就不要在创建时偷懒同时pack()
 pinyin_label = tk.Label(root, fg='blue', font = ('黑体, 80'))
 pinyin_label.pack()  
-hanzi_label = tk.Label(root, text='点击开始',font = ('黑体, 200'))
+hanzi_label = tk.Label(root, text='点击开始',font = ('黑体, 195'))
 hanzi_label.pack()
 
 shuru_entry = tk.Entry(root, font = ('黑体', 60))
@@ -123,6 +130,7 @@ next_button.pack(padx=108, side='left')
 
 root.bind('<Left>', root_left)
 root.bind('<Right>', root_right)
+
 # 主窗口循环
 tk.mainloop()
 ####################### 以上为 GUI 界面，不要更改设置顺序 ######################
