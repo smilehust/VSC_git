@@ -92,11 +92,10 @@ def pinyin_fun():
     pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(shuru_entry.get()))
 
 def add_fun():
-    if not '\n':  # 若是空白行的回车字符就不写入文件了，注意回车字符'\n'不是None
-        with codecs.open('字库文件\A正在学字库.txt', 'a', 'utf-8') as f_d,\
-            codecs.open('字库文件\C总字库.txt', 'a', 'utf-8') as f_t:
-            f_d.write('\n' + shuru_entry.get())
-            f_t.write('\n' + shuru_entry.get())
+    with codecs.open('字库文件\A正在学字库.txt', 'a', 'utf-8') as f_d,\
+        codecs.open('字库文件\C总字库.txt', 'a', 'utf-8') as f_t:
+        f_d.write('\n' + shuru_entry.get())
+        f_t.write('\n' + shuru_entry.get())
         
 def shuru_entry_return(event):
     pinyin_fun()
