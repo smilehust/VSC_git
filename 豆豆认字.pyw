@@ -1,4 +1,5 @@
 import codecs
+import win32com.client  # 文字转语音
 import tkinter as tk
 from pypinyin import pinyin, lazy_pinyin  # 这个支持多音字
 
@@ -78,10 +79,9 @@ def yihui_fun():
 def next_fun():
     try:
         Mysdudy.index += 1
-        _renzi = study[Mysdudy.index]
-        # Mysdudy.have_study.append(_renzi)
+        _renzi = study[Mysdudy.index]        
         hanzi_label['text']  = _renzi
-        pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(_renzi))
+        pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(_renzi))        
     except IndexError:
         Mysdudy.index -= 1
         hanzi_label['text']  = '--->|'
@@ -106,6 +106,11 @@ def root_left(event):
 def root_right(event):
     next_fun()
 
+def speech_fun():
+    speaker = win32com.client.Dispatch("SAPI.SpVoice")
+    speaker.Speak(study[Mysdudy.index])
+    # speech.say(study[Mysdudy.index])
+
 # 放置控件，设置属性，绑定控制函数。注意：运行中需要更改属性的就不要在创建时偷懒同时pack()
 pinyin_label = tk.Label(root, fg='blue', font = ('黑体, 80'))
 pinyin_label.pack()  
@@ -119,6 +124,8 @@ pinyin_button = tk.Button(root, height=2, width=20, text='显示拼音', command
 pinyin_button.pack(padx=120, side='bottom')  
 add_button = tk.Button(root, height=2, width=20, text='加入字库', command=add_fun)
 add_button.pack(padx=120, side='bottom')  
+speech_button = tk.Button(root, height=2, width=20, text='语音播放(beta)', command=speech_fun)
+speech_button.pack(padx=120, side='bottom')  
 
 revious_button = tk.Button(root, height=5, width=30, text='<---后退', command=revious_fun)
 revious_button.pack(padx=108, side='left')    
