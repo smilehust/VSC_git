@@ -38,8 +38,6 @@ with codecs.open('字库文件\A正在学字库.txt', 'r+', 'utf-8') as f_d,\
                 f_d.write(line + '\n')
 study.discard('')        # 删除集合中空元素，如果不存在，忽略
 study = list(study)      # 生成按顺序学习的列表
-print(study)
-
 
 # 全局变量，函数内部会修改这些变量
 NOW_NUM = len(study)      # 本次学习的总字数，可能小于NUM数
@@ -147,6 +145,13 @@ def speech_fun():
     speaker.Speak(hanzi_label['text'])
 
 
+def pinyin_switch_fun():  # 响应拼音开关复选框事件
+    if not e.get():
+        pinyin_label['fg'] = "#D4D0C8"   # 底色和主窗口相同，隐藏拼音
+    if e.get():
+        pinyin_label['fg'] = 'blue'      # 显示出蓝色的拼音
+
+
 # 放置控件，设置属性，绑定控制函数。注意：运行中需要更改属性的就不要在创建时偷懒同时pack()
 pinyin_label = tk.Label(root, fg='blue', text=' '.join(
     ''.join(i) for i in pinyin(study[0])), font=('黑体, 80'))
@@ -165,6 +170,12 @@ add_button.pack(padx=120, side='bottom')
 speech_button = tk.Button(root, height=2, width=20,
                           text='语音播放(beta)', command=speech_fun)
 speech_button.pack(padx=120, side='bottom')
+
+e = tk.IntVar()  # 检测拼音开关变量
+pinyin_switch = tk.Checkbutton(root, variable = e, onvalue = 1, offvalue = 0, 
+                          text='拼音开关', command=pinyin_switch_fun)
+pinyin_switch.pack(padx=120, side='bottom')
+pinyin_switch.select()
 
 revious_button = tk.Button(root, height=5, width=30,
                            text='<---后退', state='disabled', command=revious_fun)
