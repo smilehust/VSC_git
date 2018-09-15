@@ -24,7 +24,8 @@ with codecs.open('字库文件\A正在学字库.txt', 'r+', 'utf-8') as f_d,\
         a = line.strip('\n').strip('\r')
         yihui.add(a)
     study = total - yihui
-    if not dangqian:  # 如果A正在学字库是空的，则全新写入NUM个进去，此处用r+和a+一样效果
+    study.discard('')   # 删除集合中空元素，如果不存在，忽略
+    if not dangqian:    # 如果A正在学字库是空的，则全新写入NUM个进去，此处用r+和a+一样效果
         dangqian = set(list(study)[:NUM])
         for line in dangqian:
             f_d.write(line + '\n')
@@ -32,10 +33,6 @@ with codecs.open('字库文件\A正在学字库.txt', 'r+', 'utf-8') as f_d,\
     else:
         study = dangqian - yihui
     study = list(study)      # 生成按顺序学习的列表
-    try:
-        study.remove('')     # 删除列表中空元素
-    except ValueError:
-        pass
 
 class Mysdudy():
     index = 0    
