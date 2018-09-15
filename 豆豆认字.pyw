@@ -33,9 +33,12 @@ with codecs.open('字库文件\A正在学字库.txt', 'r+', 'utf-8') as f_d,\
     else:
         study = dangqian - yihui
     study = list(study)      # 生成按顺序学习的列表
-
-class Mysdudy():
-    index = 0    
+    study = ['李威', '李刚']
+    # 全局变量，函数内部会修改这些变量
+    NOW_NUM =len(study)      # 本次学习的总字数，可能小于NUM数
+    index = 0                # 当前学的字的列表索引
+    leftKey_flag = 1         # 左方向键开关
+    rightKey_flag = 1        # 右方向键开关
   
 pinyin('预加载')  # 提前加载一次库，提高用户体验
 ####################### 以下为 GUI 界面，不要更改设置顺序 ######################
@@ -53,36 +56,48 @@ root.resizable(0,0)                 # 禁止主窗口调整大小
 
 # 定义控制函数
 def revious_fun():
-    try:
-        Mysdudy.index -= 1
-        _renzi = study[Mysdudy.index]
-        hanzi_label['text']  = _renzi
-        pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(_renzi))
-    except IndexError:
-        Mysdudy.index += 1
-        hanzi_label['text']  = '|<---'
-        pinyin_label['text'] = ''    
+    global NOW_NUM, index, leftKey_flag, rightKey_flag
+    next_button['state'] = "normal"
+    rightKey_flag = 1
+    index -= 1
+    if 0 <= index <= NOW_NUM - 1 :    
+        hanzi_label['text']  = study[index]
+        pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(study[index]))                
+        if index == 0:
+            revious_button['state'] = "disabled"
+            leftKey_flag = 0
 
 def yihui_fun():
+    global NOW_NUM, index, leftKey_flag, rightKey_flag
     with codecs.open('字库文件\B已会字库.txt', 'a', 'utf-8') as f:
-        try:
-            f.write('\n' + study[Mysdudy.index])
-            del study[Mysdudy.index]
-            hanzi_label['text']  = study[Mysdudy.index]
-            pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(study[Mysdudy.index]))
-        except IndexError:
-            pass
+        f.write('\n' + study[index])
+    study.remove(study[index])
+    NOW_NUM -= 1  
+    if NOW_NUM == 0:  # 当前待学习的列表为空，都加入已会后，就锁住界面
+        yihui_button['state'] = "disabled"
+        revious_button['state'] = "disabled"
+        next_button['state'] = "disabled"
+        leftKey_flag = 0
+        rightKey_flag = 0
+        hanzi_label['text']  = ''
+        pinyin_label['text'] = ''
+    elif NOW_NUM > 0:  
+        if index == NOW_NUM:  # 处理列表最后一个元素的显示问题
+            index -= 1
+        hanzi_label['text']  = study[index]
+        pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(study[index]))
     
 def next_fun():
-    try:
-        Mysdudy.index += 1
-        _renzi = study[Mysdudy.index]        
-        hanzi_label['text']  = _renzi
-        pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(_renzi))        
-    except IndexError:
-        Mysdudy.index -= 1
-        hanzi_label['text']  = '--->|'
-        pinyin_label['text'] = ''
+    global NOW_NUM, index, leftKey_flag, rightKey_flag
+    revious_button['state'] = "normal"
+    leftKey_flag = 1
+    index += 1
+    if 0 <= index <= NOW_NUM - 1 :          
+        hanzi_label['text']  = study[index]
+        pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(study[index]))               
+        if index == NOW_NUM - 1 :        
+            next_button['state'] = "disabled"
+            rightKey_flag = 0
 
 def pinyin_fun():
     hanzi_label['text']  = shuru_entry.get()
@@ -98,20 +113,21 @@ def shuru_entry_return(event):
     pinyin_fun()
 
 def root_left(event):
-    revious_fun()
+    if leftKey_flag:
+        revious_fun()
 
 def root_right(event):
-    next_fun()
+    if rightKey_flag:
+        next_fun()
 
 def speech_fun():
     speaker = win32com.client.Dispatch("SAPI.SpVoice")
-    speaker.Speak(study[Mysdudy.index])
-    # speech.say(study[Mysdudy.index])
+    speaker.Speak(hanzi_label['text'])
 
 # 放置控件，设置属性，绑定控制函数。注意：运行中需要更改属性的就不要在创建时偷懒同时pack()
-pinyin_label = tk.Label(root, fg='blue', font = ('黑体, 80'))
+pinyin_label = tk.Label(root, fg='blue', text=' '.join(''.join(i) for i in pinyin(study[0])),font = ('黑体, 80'))
 pinyin_label.pack()  
-hanzi_label = tk.Label(root, text='点击开始',font = ('黑体, 195'))
+hanzi_label = tk.Label(root, text=study[0],font = ('黑体, 195'))
 hanzi_label.pack()
 
 shuru_entry = tk.Entry(root, font = ('黑体', 60))
@@ -124,12 +140,13 @@ add_button.pack(padx=120, side='bottom')
 speech_button = tk.Button(root, height=2, width=20, text='语音播放(beta)', command=speech_fun)
 speech_button.pack(padx=120, side='bottom')  
 
-revious_button = tk.Button(root, height=5, width=30, text='<---后退', command=revious_fun)
+revious_button = tk.Button(root, height=5, width=30, text='<---后退', state='disabled', command=revious_fun)
 revious_button.pack(padx=108, side='left')    
 yihui_button = tk.Button(root, height=5, width=20, text='已会', bg='light blue', command=yihui_fun)
 yihui_button.pack(side='left')
 next_button = tk.Button(root, height=5, width=30,  text='前进--->', command=next_fun)
 next_button.pack(padx=108, side='left')
+
 
 root.bind('<Left>', root_left)
 root.bind('<Right>', root_right)
