@@ -23,8 +23,7 @@ with codecs.open('字库文件\A正在学字库.txt', 'r+', 'utf-8') as f_d,\
     for line in f_y:
         a = line.strip('\n').strip('\r')
         yihui.add(a)
-    study = total - yihui
-    study.discard('')   # 删除集合中空元素，如果不存在，忽略
+    study = total - yihui    
     if not dangqian:    # 如果A正在学字库是空的，则全新写入NUM个进去，此处用r+和a+一样效果
         dangqian = set(list(study)[:NUM])
         for line in dangqian:
@@ -32,8 +31,11 @@ with codecs.open('字库文件\A正在学字库.txt', 'r+', 'utf-8') as f_d,\
         study = dangqian
     else:
         study = dangqian - yihui
+    study.discard('')        # 删除集合中空元素，如果不存在，忽略
     study = list(study)      # 生成按顺序学习的列表
-    study = ['李威', '李刚']
+    if not study:
+        study.append('已学完')
+
     # 全局变量，函数内部会修改这些变量
     NOW_NUM =len(study)      # 本次学习的总字数，可能小于NUM数
     index = 0                # 当前学的字的列表索引
@@ -84,6 +86,7 @@ def yihui_fun():
     elif NOW_NUM > 0:  
         if index == NOW_NUM:  # 处理列表最后一个元素的显示问题
             index -= 1
+            next_button['state'] = "disabled"
         hanzi_label['text']  = study[index]
         pinyin_label['text'] = ' '.join(''.join(i) for i in pinyin(study[index]))
     
@@ -146,7 +149,6 @@ yihui_button = tk.Button(root, height=5, width=20, text='已会', bg='light blue
 yihui_button.pack(side='left')
 next_button = tk.Button(root, height=5, width=30,  text='前进--->', command=next_fun)
 next_button.pack(padx=108, side='left')
-
 
 root.bind('<Left>', root_left)
 root.bind('<Right>', root_right)
