@@ -52,15 +52,15 @@ pinyin('预加载')  # 提前加载一次库，提高用户体验
 ####################### 以下为 GUI 界面，不要更改设置顺序 ######################
 # 设置主窗口
 root = tk.Tk()
-root.title('豆豆认字 V20180921')
+root.title('豆豆认字 V20180924')
 # 设置主窗口居中
 sw = root.winfo_screenwidth()
 sh = root.winfo_screenheight()
 sw = int((sw-root_width)/2)
 sh = int((sh-root_height)/2)
 root.geometry('{}x{}+{}+{}'.format(root_width, root_height, sw, sh))
-root.iconbitmap('豆豆.ico')  # 窗口图标
-root.resizable(0, 0)                 # 禁止主窗口调整大小
+root.iconbitmap('豆豆.ico')    # 窗口图标
+root.resizable(0, 0)    # 禁止主窗口调整大小
 
 
 # 定义控制函数
@@ -118,6 +118,7 @@ def add_fun():
     with codecs.open('当前学字库.txt', 'a', 'utf-8') as f_d, codecs.open('总字库.txt', 'a', 'utf-8') as f_t:
         f_d.write('\n' + shuru_entry.get())
         f_t.write('\n' + shuru_entry.get())
+    e_shuru_entry.set('')    # 清空输入栏
 
 def shuru_entry_return(event):
     hanzi_label['text'] = shuru_entry.get()
@@ -158,15 +159,16 @@ pinyin_switch = tk.Checkbutton(root, variable = e, onvalue = 1, offvalue = 0, te
 pinyin_switch.pack()
 pinyin_switch.select()
 
-shuru_entry = tk.Entry(root, font=('黑体', 60))
+e_shuru_entry = tk.StringVar()
+shuru_entry = tk.Entry(root, textvariable=e_shuru_entry, font=('黑体', 60))
 shuru_entry.pack(side='bottom')
 shuru_entry.bind('<Return>', shuru_entry_return)  # 绑定回车键
 
-add_button = tk.Button(root, height=2, width=20, text='加入字库 ∨', command=add_fun)
+add_button = tk.Button(root, height=2, width=20, text='不会（加入字库） ∨', command=add_fun)
 add_button.pack(padx=120, side='bottom')
 revious_button = tk.Button(root, height=5, width=30, text='< 后退', state='disabled', command=revious_fun)
 revious_button.pack(padx=108, side='left')
-yihui_button = tk.Button(root, height=5, width=20, text='已会 ^', command=yihui_fun)
+yihui_button = tk.Button(root, height=5, width=20, text='已会（移出字库） ^', command=yihui_fun)
 yihui_button.pack(side='left')
 next_button = tk.Button(root, height=5, width=30, text='前进 >', command=next_fun)
 next_button.pack(padx=108, side='left')
